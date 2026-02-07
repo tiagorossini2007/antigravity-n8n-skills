@@ -1,0 +1,310 @@
+---
+name: n8n-automation-best-practices
+description: Best practices and guidelines for building n8n automation workflows. Use this skill when creating, optimizing, or maintaining n8n automations, especially for projects involving WhatsApp, CRM integrations, AI agents, databases, or multi-step workflows. Triggers include requests to build n8n workflows, optimize existing automations, integrate services like Supabase/Chatwoot/PostgreSQL, or design modular automation architectures.
+---
+
+# N8N Automation Best Practices
+
+Expert guidelines for building robust, maintainable, and scalable n8n workflows.
+
+## Core Principles
+
+### 1. Database Configuration
+
+**PostgreSQL Window Length**
+
+- Always use `window_length: 40` for PostgreSQL nodes
+- Ensures optimal data handling and prevents memory issues
+- Critical for workflows processing large datasets
+
+**Supabase as Primary Database**
+
+- Use Supabase for:
+  - Primary database storage
+  - CRM data management
+  - User information and contact lists
+  - Transaction logs and history
+- Benefits: Built-in API, real-time features, PostgreSQL compatibility
+
+### 2. CRM Integration
+
+**Chatwoot for WhatsApp**
+
+- Use Chatwoot as CRM specifically for WhatsApp conversations
+- Centralizes customer interactions
+- Provides conversation history and analytics
+- Enables team collaboration on customer support
+
+**When to use:**
+
+- WhatsApp business automation
+- Customer support workflows
+- Multi-agent support teams
+- Conversation tracking and metrics
+
+### 3. Workflow Design Patterns
+
+**Use Edit Fields Node (Pencil Icon)**
+
+- Transform and clean data before next steps
+- Rename fields for clarity
+- Format dates, numbers, and strings
+- Map complex objects to simple structures
+- Always document transformations with node notes
+
+**Modularization Strategy**
+
+- Separate workflows by function:
+  - `whatsapp-receive.json` - Message reception
+  - `ai-processing.json` - AI agent logic
+  - `database-sync.json` - Data persistence
+  - `notification-sender.json` - Outbound messages
+- Benefits:
+  - Easier debugging
+  - Reusable components
+  - Simplified maintenance
+  - Faster project setup for similar use cases
+
+**Workflow Organization Best Practices:**
+
+```
+project-name/
+├── workflows/
+│   ├── 01-reception/
+│   │   └── whatsapp-receive.json
+│   ├── 02-processing/
+│   │   ├── ai-agent-main.json
+│   │   └── ai-agent-fallback.json
+│   ├── 03-storage/
+│   │   └── database-sync.json
+│   └── 04-output/
+│       └── send-messages.json
+└── README.md (brief workflow description)
+```
+
+### 4. AI Agent Prompt Engineering
+
+**Markdown Format**
+
+- Always write AI prompts in Markdown
+- Use headers, lists, and code blocks
+- Improves AI comprehension and response quality
+
+**Structured Prompts - Use Topics:**
+
+```markdown
+# AI Agent: Customer Support
+
+## Purpose
+
+Respond to customer inquiries about [product/service] with helpful, professional answers.
+
+## Capabilities
+
+- Answer FAQs about products
+- Check order status
+- Schedule appointments
+- Escalate complex issues to human
+
+## Tone & Style
+
+- Professional but friendly
+- Use simple language
+- Avoid technical jargon
+- Maximum 2-3 sentences per response
+
+## Constraints
+
+- Never share pricing without verification
+- Don't make promises about delivery dates
+- Always confirm user identity for sensitive info
+
+## Response Format
+
+1. Acknowledge the question
+2. Provide clear answer
+3. Ask if they need more help
+
+## Examples
+
+**User:** "Where is my order?"
+**Agent:** "I'd be happy to check your order status! Could you please provide your order number or email address?"
+```
+
+**Benefits of structured prompts:**
+
+- Consistent AI behavior
+- Easier to debug issues
+- Simple to update instructions
+- Clear boundaries and expectations
+
+### 5. Performance Optimization
+
+**Keep N8N Lightweight**
+
+- Avoid unnecessary nodes
+- Use batch operations when possible
+- Implement error handling early
+- Archive completed workflows
+- Regular cleanup of test workflows
+
+**Visual Clarity:**
+
+- Use sticky notes for workflow sections
+- Color-code nodes by function (green=success, red=error, blue=data)
+- Consistent naming conventions
+- Group related nodes visually
+
+### 6. WhatsApp Architecture
+
+**Separate Reception from Outbound**
+
+- **Reception number:** Receives customer messages (connected to Chatwoot)
+- **Outbound number:** Sends automated messages, campaigns, notifications
+- **Why separate?**
+  - Prevents API rate limits
+  - Better deliverability
+  - Cleaner analytics
+  - Compliance with WhatsApp policies
+
+**Example setup:**
+
+```
+Customer → +55 11 9999-1111 (Reception) → Chatwoot → N8N → AI Agent
+                                                           ↓
+Campaign Trigger → N8N → +55 11 9999-2222 (Outbound) → Customer
+```
+
+### 7. Client Briefing Process
+
+**Essential Briefing Template**
+
+```markdown
+# Project Briefing: [Client Name]
+
+## 1. Project Type (choose one or more)
+
+[ ] WhatsApp automation
+[ ] CRM integration
+[ ] AI chatbot
+[ ] Data processing
+[ ] Multi-channel communication
+[ ] Other: ****\_\_\_****
+
+## 2. Communication Channels
+
+[ ] WhatsApp Business
+[ ] Email
+[ ] SMS
+[ ] Telegram
+[ ] Slack
+[ ] Other: ****\_\_\_****
+
+## 3. Database Requirements
+
+[ ] Store customer data
+[ ] Transaction history
+[ ] Analytics/reporting
+[ ] External system integration
+[ ] No database needed
+
+## 4. AI Agent Purpose (if applicable)
+
+[ ] Customer support
+[ ] Lead qualification
+[ ] Appointment scheduling
+[ ] FAQ responder
+[ ] Sales assistant
+[ ] Other: ****\_\_\_****
+
+## 5. Integration Needs
+
+[ ] Supabase
+[ ] Chatwoot
+[ ] Google Sheets
+[ ] External API
+[ ] Payment gateway
+[ ] Other: ****\_\_\_****
+
+## 6. Volume Expectations
+
+- Messages per day: ****\_\_\_****
+- Peak hours: ****\_\_\_****
+- Response time requirement: ****\_\_\_****
+
+## 7. Special Requirements
+
+[Open text field for unique needs]
+
+## 8. Budget & Timeline
+
+- Budget: ****\_\_\_****
+- Deadline: ****\_\_\_****
+- Maintenance plan: [ ] Yes [ ] No
+```
+
+**How to use:**
+
+- Send to client before starting
+- Adjust questions based on project type
+- Use responses to determine which best practices apply
+- Reference throughout development
+
+## Decision Matrix
+
+**Not all projects need all practices. Use this matrix:**
+
+| Project Type       | PostgreSQL | Supabase | Chatwoot | WhatsApp Split | AI Prompts | Modularization |
+| ------------------ | ---------- | -------- | -------- | -------------- | ---------- | -------------- |
+| Simple chatbot     | Optional   | ✓        | Optional | No             | ✓          | Optional       |
+| WhatsApp CRM       | ✓          | ✓        | ✓        | ✓              | ✓          | ✓              |
+| Data processing    | ✓          | ✓        | No       | No             | Optional   | ✓              |
+| Multi-agent system | ✓          | ✓        | ✓        | ✓              | ✓          | ✓              |
+| Email automation   | Optional   | ✓        | No       | No             | ✓          | Optional       |
+
+## Quick Reference
+
+**Checklist before deployment:**
+
+- [ ] PostgreSQL window_length = 40
+- [ ] AI prompts in Markdown with clear structure
+- [ ] Workflows modularized by function
+- [ ] Edit Fields nodes documented
+- [ ] Separate WhatsApp numbers (if applicable)
+- [ ] Error handling implemented
+- [ ] Client briefing completed
+- [ ] Test with real data
+- [ ] Performance optimized
+
+## Common Patterns
+
+**Pattern 1: WhatsApp + AI + CRM**
+
+```
+Chatwoot Webhook → Edit Fields → AI Agent → Edit Fields → Supabase Save → Send Response
+```
+
+**Pattern 2: Scheduled Data Sync**
+
+```
+Schedule Trigger → Fetch from API → Edit Fields → Batch PostgreSQL Insert → Notification
+```
+
+**Pattern 3: Lead Qualification**
+
+```
+Form Submit → Edit Fields → AI Scoring → Router (Hot/Warm/Cold) → Different Actions
+```
+
+---
+
+## Additional Resources
+
+For complex projects, consider creating separate workflows for:
+
+- Error monitoring and logging
+- Daily/weekly reporting
+- Data cleanup and maintenance
+- Backup and recovery
+
+Remember: Start simple, test thoroughly, then scale complexity.
